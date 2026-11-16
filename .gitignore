@@ -1,0 +1,24 @@
+# Virtual Environment
+.venv/
+venv/
+env/
+
+# Byte-compiled / cache Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# File artefak sementara / lokal
+*.joblib
+*.pkl
+*.log
+
+# Sistem Operasi & Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Rahasia lokal (jika ada di masa depan)
+.streamlit/secrets.toml
+.env

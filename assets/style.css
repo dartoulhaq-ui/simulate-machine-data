@@ -1,0 +1,159 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Inter:wght@400;600;700&family=Space+Grotesk:wght@700;800&display=swap');
+
+:root {
+    --tidal-teal: #0E7C86;
+    --porcelain-bone: #F5F0E6;
+    --tangerine-blast: #FF6B1A;
+    --ink-black: #111111;
+    --card-white: #FFFFFF;
+}
+
+/* Latar utama & tipografi */
+.stApp {
+    background-color: var(--porcelain-bone);
+    color: var(--ink-black);
+    font-family: 'Inter', sans-serif;
+}
+
+h1, h2, h3, h4 {
+    font-family: 'Space Grotesk', sans-serif !important;
+    color: var(--ink-black) !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.02em;
+}
+
+code, pre, .stCodeBlock {
+    font-family: 'IBM Plex Mono', monospace !important;
+}
+
+/* Sidebar Neo Brutalism */
+section[data-testid="stSidebar"] {
+    background-color: var(--card-white) !important;
+    border-right: 3px solid var(--ink-black) !important;
+}
+
+/* Kartu kustom Neo Brutalism */
+.neo-card {
+    background-color: var(--card-white);
+    border: 3px solid var(--ink-black);
+    border-radius: 4px;
+    box-shadow: 5px 5px 0px var(--ink-black);
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.neo-card:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 3px 3px 0px var(--ink-black);
+}
+
+.neo-header-banner {
+    background-color: var(--tidal-teal);
+    color: #FFFFFF !important;
+    border: 3px solid var(--ink-black);
+    border-radius: 4px;
+    box-shadow: 5px 5px 0px var(--ink-black);
+    padding: 1.4rem;
+    margin-bottom: 1.5rem;
+}
+
+.neo-header-banner h1,
+.neo-header-banner p {
+    color: #FFFFFF !important;
+    margin: 0;
+}
+
+/* Badge Level */
+.neo-badge {
+    display: inline-block;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0.25rem 0.7rem;
+    border: 2px solid var(--ink-black);
+    border-radius: 4px;
+    box-shadow: 3px 3px 0px var(--ink-black);
+    margin-right: 0.5rem;
+    margin-bottom: 0.4rem;
+    color: var(--ink-black);
+}
+
+.badge-easy { background-color: #6EE7B7; }
+.badge-medium { background-color: #FDE047; }
+.badge-hard { background-color: var(--tangerine-blast); color: #FFFFFF; }
+.badge-legend { background-color: #EF4444; color: #FFFFFF; }
+.badge-time { background-color: var(--porcelain-bone); }
+
+/* Tombol Streamlit */
+.stButton > button,
+.stDownloadButton > button,
+button[kind="primary"],
+button[kind="secondary"] {
+    background-color: var(--tidal-teal) !important;
+    color: #FFFFFF !important;
+    font-family: 'Space Grotesk', sans-serif !important;
+    font-weight: 700 !important;
+    border: 3px solid var(--ink-black) !important;
+    border-radius: 4px !important;
+    box-shadow: 5px 5px 0px var(--ink-black) !important;
+    padding: 0.55rem 1.1rem !important;
+    transition: transform 0.1s ease, box-shadow 0.1s ease !important;
+}
+
+.stButton > button:hover,
+.stDownloadButton > button:hover {
+    background-color: var(--tangerine-blast) !important;
+    color: var(--ink-black) !important;
+    transform: translate(2px, 2px) !important;
+    box-shadow: 3px 3px 0px var(--ink-black) !important;
+}
+
+.stButton > button:active,
+.stDownloadButton > button:active {
+    transform: translate(4px, 4px) !important;
+    box-shadow: 1px 1px 0px var(--ink-black) !important;
+}
+
+/* Metrik & Expander */
+div[data-testid="stMetric"] {
+    background-color: var(--card-white);
+    border: 3px solid var(--ink-black);
+    border-radius: 4px;
+    box-shadow: 4px 4px 0px var(--ink-black);
+    padding: 0.9rem;
+}
+
+details[data-testid="stExpander"] {
+    background-color: var(--card-white) !important;
+    border: 3px solid var(--ink-black) !important;
+    border-radius: 4px !important;
+    box-shadow: 4px 4px 0px var(--ink-black) !important;
+    margin-bottom: 1rem !important;
+}
+
+/* Input & Selectbox */
+div[data-baseweb="select"] > div,
+div[data-baseweb="input"] > div,
+textarea {
+    border: 2px solid var(--ink-black) !important;
+    border-radius: 4px !important;
+    background-color: var(--card-white) !important;
+}
+
+/* Responsif untuk layar HP (Mobile) */
+@media (max-width: 768px) {
+    .neo-header-banner {
+        padding: 1rem;
+    }
+    .neo-card {
+        padding: 0.95rem;
+        box-shadow: 3px 3px 0px var(--ink-black);
+    }
+    .stButton > button,
+    .stDownloadButton > button {
+        width: 100% !important;
+        min-height: 48px !important;
+        font-size: 1rem !important;
+    }
+}
