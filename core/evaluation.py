@@ -119,6 +119,8 @@ def plot_scatter_with_insight(
 
     if pd.api.types.is_numeric_dtype(plot_df[x_col]) and pd.api.types.is_numeric_dtype(plot_df[y_col]):
         corr_val = float(plot_df[x_col].corr(plot_df[y_col]))
+        if np.isnan(corr_val):
+            corr_val = 0.0
         abs_c = abs(corr_val)
         strength = "kuat" if abs_c >= 0.6 else ("sedang" if abs_c >= 0.3 else "lemah")
         direction = "positif (searah)" if corr_val >= 0 else "negatif (berlawanan arah)"
@@ -139,7 +141,7 @@ def plot_correlation_heatmap(df: pd.DataFrame) -> Tuple[go.Figure, str]:
         fig = go.Figure()
         return _apply_neo_layout(fig, "Heatmap Korelasi (Minimal 2 Kolom Numerik)"), "💡 Tambahkan kolom numerik."
 
-    corr_matrix = num_df.corr().round(2)
+    corr_matrix = num_df.corr().fillna(0.0).round(2)
     fig = px.imshow(
         corr_matrix,
         text_auto=True,
@@ -150,12 +152,13 @@ def plot_correlation_heatmap(df: pd.DataFrame) -> Tuple[go.Figure, str]:
     )
     fig = _apply_neo_layout(fig, "Heatmap Korelasi Antar Fitur Numerik")
 
-    abs_corr = corr_matrix.abs().copy()
-    np.fill_diagonal(abs_corr.values, 0.0)
-    max_pos = np.unravel_index(np.argmax(abs_corr.values), abs_corr.shape)
-    col_1 = abs_corr.index[max_pos[0]]
-    col_2 = abs_corr.columns[max_pos[1]]
-    best_r = corr_matrix.loc[col_1, col_2]
+    # Gunakan .to_numpy(copy=True) agar array bersifat writable pada Pandas 2.2+ / NumPy 2.0+
+    abs_corr_arr = corr_matrix.abs().to_numpy(copy=True)
+    np.fill_diagonal(abs_corr_arr, 0.0)
+    max_pos = np.unravel_index(np.argmax(abs_corr_arr), abs_corr_arr.shape)
+    col_1 = corr_matrix.index[int(max_pos[0])]
+    col_2 = corr_matrix.columns[int(max_pos[1])]
+    best_r = float(corr_matrix.loc[col_1, col_2])
 
     insight = (
         f"💡 **Insight Otomatis**: Pasangan kolom dengan hubungan terkuat adalah **`{col_1}`** dan **`{col_2}`** "
@@ -185,7 +188,7 @@ def plot_categorical_bar(df: pd.DataFrame, cat_col: str) -> Tuple[go.Figure, str
     top_pct = (counts.iloc[0]["Jumlah"] / max(1, len(df))) * 100.0
     insight = (
         f"💡 **Insight Otomatis**: Kategori terbanyak pada `{cat_col}` adalah **`{top_cat}`** (**{top_pct:.1f}%** dari total baris). "
-        f"Perhatikan apakah ada kategori langka (< 5%) karena kategori yang terlalu sedikit bisa memicu overfitting saat di-One-Hot Encode."
+        f"Perhatikan apakah ada kategori langka (kurang dari 5%) karena kategori yang terlalu sedikit bisa memicu overfitting saat di-One-Hot Encode."
     )
     return fig, insight
 

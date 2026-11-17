@@ -85,7 +85,6 @@ def build_structured_notebook_bytes(
 
     is_id = lang.lower().startswith("id")
 
-    # Header Utama Notebook
     if is_id:
         add_md(
             f"# 🏆 {project_title}\n"
@@ -101,7 +100,6 @@ def build_structured_notebook_bytes(
             f"**Competition Goal:** {competition_goal}\n\n---"
         )
 
-    # 1. Pendahuluan
     if "Pendahuluan" in selected_sections:
         if is_id:
             add_md(
@@ -129,7 +127,6 @@ print("Pandas version:", pd.__version__)
 print("Scikit-Learn version:", sklearn.__version__)"""
         )
 
-    # 2. EDA
     if "EDA" in selected_sections:
         if is_id:
             add_md(
@@ -144,8 +141,7 @@ print("Scikit-Learn version:", sklearn.__version__)"""
                 "and potential outliers."
             )
         add_code(
-            f"""# Muat dataset kompetisi
-train_df = pd.read_csv("train.csv")
+            f"""train_df = pd.read_csv("train.csv")
 test_df = pd.read_csv("test.csv")
 TARGET_COL = "{target_col}"
 
@@ -153,12 +149,10 @@ print("Train shape:", train_df.shape, "| Test shape:", test_df.shape)
 display(train_df.head())
 display(train_df.describe().T)
 
-# Cek persentase missing value
 missing_pct = (train_df.isna().sum() / len(train_df) * 100).round(2)
 display(missing_pct[missing_pct > 0])"""
         )
 
-    # 3. Preprocessing & Feature Engineering
     if "Preprocessing" in selected_sections:
         if is_id:
             add_md(
@@ -194,7 +188,6 @@ preprocessor = ColumnTransformer(transformers=[
 ])"""
         )
 
-    # 4. Modeling
     if "Modeling" in selected_sections:
         if is_id:
             add_md(
@@ -233,7 +226,6 @@ cv_scores = cross_val_score(clf_pipeline, X, y, cv=cv, scoring="f1")
 print(f"5-Fold CV Mean: {{cv_scores.mean():.4f}} +/- {{cv_scores.std():.4f}}")"""
         )
 
-    # 5. Evaluasi
     if "Evaluasi" in selected_sections:
         if is_id:
             add_md(
@@ -257,7 +249,6 @@ submission.to_csv("submission.csv", index=False)
 print("File submission.csv berhasil dibuat!")"""
         )
 
-    # 6. Kesimpulan
     if "Kesimpulan" in selected_sections:
         if is_id:
             add_md(
