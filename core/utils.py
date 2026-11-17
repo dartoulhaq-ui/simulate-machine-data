@@ -1,14 +1,15 @@
-"""Modul utilitas untuk seed global, tema CSS, info environment, dan state tim."""
+"""Modul utilitas untuk seed global, tema CSS, info environment, kuota UTC Kaggle, dan state tim."""
 
 from datetime import datetime, timezone
 import importlib.metadata
 import json
 from pathlib import Path
 import sys
-from typing import Dict, Any
+from typing import Dict, Any, List, Tuple
 import numpy as np
 import streamlit as st
 
+MAX_DAILY_SUBMISSIONS = 5
 
 DEFAULT_MODULES_PROGRESS: Dict[str, bool] = {
     "easy_eda": False,
@@ -60,7 +61,7 @@ def init_session_state() -> None:
     if "global_seed" not in st.session_state:
         st.session_state["global_seed"] = 42
 
-    if " panduan_awam" not in st.session_state:
+    if "panduan_awam" not in st.session_state:
         st.session_state["panduan_awam"] = True
 
     if "progress" not in st.session_state:
@@ -68,6 +69,63 @@ def init_session_state() -> None:
 
     if "submissions_log" not in st.session_state:
         st.session_state["submissions_log"] = []
+
+
+def get_utc_today_str() -> str:
+    """Mengembalikan tanggal hari ini dalam zona waktu UTC (format YYYY-MM-DD)."""
+    return datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+
+def get_daily_submission_status() -> Tuple[int, int, List[Dict[str, Any]]]:
+    """
+    Menghitung jumlah submission hari ini (berdasarkan tanggal UTC).
+    Mengembalikan: (terpakai_hari_ini, sisa_kuota_hari_ini, daftar_submission_hari_ini).
+    """
+    init_session_state()
+    today_utc = get_utc_today_str()
+    all_logs: List[Dict[str, Any]] = st.session_state.get("submissions_log", [])
+    today_logs = [item for item in all_logs if str(item.get("date_utc", "")) == today_utc]
+    used = len(today_logs)
+    remaining = max(0, MAX_DAILY_SUBMISSIONS - used)
+    return used, remaining, today_logs
+
+
+def add_submission_record(
+    model_desc: str,
+    cv_score: float,
+    public_score: float,
+    notes: str = "",
+    private_score: float | None = None,
+) -> Tuple[bool, str]:
+    """
+    Mencatat submission baru ke dalam log tim jika kuota harian (maks 5/hari UTC) masih tersedia.
+    Mengembalikan: (status_berhasil, pesan_notifikasi).
+    """
+    used, remaining, _ = get_daily_submission_status()
+    if remaining <= 0:
+        return (
+            False,
+            "⚠️ Kuota harian 5 submission per hari (waktu UTC) telah habis! "
+            "Tunggu hingga reset pukul 00:00 UTC atau evaluasi kembali notebook lokal Anda.",
+        )
+
+    now_utc = datetime.now(timezone.utc)
+    record: Dict[str, Any] = {
+        "id": len(st.session_state["submissions_log"]) + 1,
+        "date_utc": now_utc.strftime("%Y-%m-%d"),
+        "time_utc": now_utc.strftime("%H:%M:%S UTC"),
+        "model_desc": model_desc,
+        "cv_score": round(float(cv_score), 4),
+        "public_score": round(float(public_score), 4),
+        "private_score": round(float(private_score), 4) if private_score is not None else None,
+        "notes": notes,
+        "seed": get_global_seed(),
+    }
+    st.session_state["submissions_log"].append(record)
+    return (
+        True,
+        f"✅ Submission #{record['id']} berhasil dicatat! Sisa kuota hari ini: {remaining - 1} / {MAX_DAILY_SUBMISSIONS}.",
+    )
 
 
 def load_css() -> None:
@@ -148,7 +206,7 @@ def render_page_header(title: str, badge_text: str, badge_class: str, est_time: 
 
 
 def render_sidebar_controls() -> None:
-    """Menampilkan panel kontrol global di sidebar (Seed, Panduan Awam, Ekspor/Impor JSON, Environment)."""
+    """Menampilkan panel kontrol global di sidebar (Seed, Panduan Awam, Kuota Harian, Ekspor/Impor JSON, Environment)."""
     init_session_state()
 
     with st.sidebar:
@@ -170,8 +228,10 @@ def render_sidebar_controls() -> None:
             help="Tampilkan petunjuk istilah teknis dengan bahasa sehari-hari.",
         )
 
+        used_q, rem_q, _ = get_daily_submission_status()
         utc_now = datetime.now(timezone.utc).strftime("%H:%M UTC")
-        st.caption(f"🕒 Waktu Server Kaggle: **{utc_now}** (Reset kuota: 00:00 UTC)")
+        st.caption(f"🕒 Server Kaggle: **{utc_now}** (Reset: 00:00 UTC)")
+        st.caption(f"📮 Sisa Kuota Hari Ini: **{rem_q} / {MAX_DAILY_SUBMISSIONS}** submission")
 
         st.markdown("---")
         with st.expander("🔄 Simpan / Muat Data Tim (JSON)"):
